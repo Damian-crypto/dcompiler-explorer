@@ -1,0 +1,78 @@
+* {
+    padding: 0;
+    margin: 0;
+    top: 0;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.container {
+    display: flex;
+}
+
+.container .container-box {
+    border: 2px solid black;
+}
+
+.container .container-slider {
+    width: 30px;
+    background-color: gray;
+}
+
+.navbar {
+    background-color: black;
+    height: 50px;
+    margin: 0;
+    color: white;
+}
+
+.navbar .title {
+    color: lime;
+    /* text-shadow: #0F0 1px 0 5px; */
+}
+
+.navbar .menu {
+    padding-top: 10px;
+    display: flex;
+    list-style: none;
+}
+
+.navbar .menu .menu-item {
+    padding-left: 20px;
+    font-size: 18px;
+}
+
+.navbar .menu .menu-item:hover {
+    cursor: pointer;
+    color: aqua;
+}
+
+.toolbar {
+    height: 100px;
+    background-color: black;
+    padding: 10px;
+    color: white;
+    text-align: left;
+}
+
+.toolbar th {
+    padding-left: 15px;
+}
+
+.toolbar td {
+    padding-left: 5px;
+}
+
+.command-line {
+    background-color: black;
+    color: lime;
+    border: 1px solid gray;
+    height: 200px;
+    overflow: scroll;
+}
+
+.error-text {
+    color: red;
+}

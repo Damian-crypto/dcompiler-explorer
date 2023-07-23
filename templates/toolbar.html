@@ -1,0 +1,38 @@
+<div class="toolbar">
+    <table>
+        <tr>
+            <th>Line Wrap</th>
+            <td><input id="lineWrap" type="checkbox" onclick="lineWrapChanged()"></td>
+            <th>Editor Font Size</th>
+            <td><input id="fontSize" type="number" onchange="fontSizeChanged()" value="16"></td>
+            <th>Terminal Font Size</th>
+            <td><input id="termFontSize" type="number" onchange="termFontSizeChanged()" value="16"></td>
+            <th>Theme</th>
+            <td>
+                <select id="editorTheme" onchange="themeChanged()">
+                    <option value="gruvbox" selected>Gruvbox</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="github_dark">GithubDark</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>Language</th>
+            <td>
+                <select id="currentLanguage" onchange="languageChanged()">
+                    {% for key in data['languages'] %}
+                        <option value="{{ key }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <th>Compiler</th>
+            <td>
+                <select id="currentCompiler" onchange="compilerChanged()">
+                    {% for key in data['compilers'] %}
+                        <option value="{{ key }}">{{ data['compilers'][key][0] }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+    </table>
+</div>
