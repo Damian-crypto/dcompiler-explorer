@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>{{ title }}</title>
+        <title>{{ data['title'] }}</title>
         <style type="text/css" media="screen">
             #editor1 { 
                 position: relative;
@@ -35,7 +35,7 @@
 
         <div class="container">
             <div id="editor1" class="container-box"></div>
-            <div id="main-slider" class="container-slider"></div>
+            <div id="main_slider" class="container-slider"></div>
             <div id="editor2" class="container-box"></div>
         </div>
 
@@ -43,6 +43,7 @@
         {% include "commandline.html" %}
 
         <script type="text/javascript" src="{{ url_for('static', filename='/js/src-min-noconflict/ace.js') }}" charset="UTF-8"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='/js/src-min-noconflict/ext-language_tools.js')}}" charset="UTF-8"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='/js/script.js')}}" charset="UTF-8"></script>
     </body>
 </html>

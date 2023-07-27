@@ -1,4 +1,4 @@
-const sliderDiv = document.querySelector("#main-slider");
+const sliderDiv = document.querySelector("#main_slider");
 const resizableDiv = document.querySelector("#editor1");
 let isResizing = false;
 let startX = 0;
@@ -60,11 +60,18 @@ async function compileCode(compilerOptions) {
     });
 }
 
+
+ace.require("ace/ext/language_tools");
 var editor1 = ace.edit("editor1");
 editor1.setTheme('ace/theme/gruvbox');
 editor1.session.setMode('ace/mode/c_cpp');
 editor1.setHighlightActiveLine(true);
 editor1.session.setUseWrapMode(false);
+editor1.setOptions({
+    enableBasicAutocompletion: false,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+});
 
 var editor2 = ace.edit("editor2");
 editor2.setTheme('ace/theme/gruvbox');
@@ -73,11 +80,11 @@ editor2.setHighlightActiveLine(true);
 editor2.setReadOnly(true);
 editor2.session.setUseWrapMode(false);
 
-var terminal = document.getElementById("main-terminal");
+var terminal = document.getElementById("main_terminal");
 
 function sendCompileRequest() {
-    var compilerSelector = document.getElementById("currentCompiler");
-    var languageSelector = document.getElementById("currentLanguage");
+    var compilerSelector = document.getElementById("current_compiler");
+    var languageSelector = document.getElementById("current_language");
     if (editor1.getValue().length === 0) {
         return;
     }
@@ -90,8 +97,14 @@ function sendCompileRequest() {
         console.log(data);
         editor2.setValue(data['assembly_output']);
         terminal.innerHTML = "";
+        if ('server_error' in data) {
+            alert(data['server_error']);
+        }
         if ('compiler_error' in data) {
             terminal.innerHTML = "<pre class=\"error-text\">" + data['compiler_error'] + "</pre>";
+        }
+        if ('execution_error' in data) {
+            terminal.innerHTML += "<pre class=\"error-text\">" + data['execution_error'] + "</pre>";
         }
         if ('compiler_output' in data) {
             terminal.innerHTML += "<pre>" + data['compiler_output'] + "</pre>";
@@ -110,6 +123,8 @@ function onUpdate() {
 }
 
 editor1.on('change', data => {
+    stateChange(true);
+    terminalLoading();
     changed = true;
 });
 
@@ -117,32 +132,31 @@ setInterval(onUpdate, 10000);
 
 document.querySelector('#editor1').style.fontSize = '16px';
 document.querySelector('#editor2').style.fontSize = '16px';
-document.getElementById("main-terminal").style.fontSize = `16px`;
+document.getElementById("main_terminal").style.fontSize = `16px`;
 
 // function setLanguage(language) {
 //     editor.session.setMode('ace/mode/' + language);
 // }
 
 function lineWrapChanged() {
-    var elem = document.getElementById("lineWrap");
+    var elem = document.getElementById("line_wrap");
     editor1.session.setUseWrapMode(elem.checked);
     editor2.session.setUseWrapMode(elem.checked);
 }
 
 function fontSizeChanged() {
-    var elem = document.getElementById("fontSize");
+    var elem = document.getElementById("font_size");
     document.querySelector('#editor1').style.fontSize = `${elem.value}px`;
     document.querySelector('#editor2').style.fontSize = `${elem.value}px`;
 }
 
 function termFontSizeChanged() {
-    var elem = document.getElementById("termFontSize");
-    document.getElementById("main-terminal").style.fontSize = `${elem.value}px`;
+    var elem = document.getElementById("term_font_size");
+    document.getElementById("main_terminal").style.fontSize = `${elem.value}px`;
 }
 
 function themeChanged() {
-    var elem = document.getElementById("editorTheme");
-    console.log(elem.value);
+    var elem = document.getElementById("editor_theme");
     editor1.setTheme(`ace/theme/${elem.value}`);
     editor2.setTheme(`ace/theme/${elem.value}`);
 }
@@ -152,6 +166,120 @@ function compilerChanged() {
 }
 
 function languageChanged() {
+    var lang = document.getElementById("current_language");
+    editor1.session.setMode(`ace/mode/${getAceLanguage(lang.value)}`);
     sendCompileRequest();
 }
 
+function getAceLanguage(lang) {
+    switch(lang) {
+        case 'c++':
+            return 'c_cpp';
+        case 'java':
+            return 'java';
+        case 'python':
+            return 'python';
+        default:
+            return 'c_cpp';
+    }
+}
+
+function downloadAsFile(content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const tUrl= URL.createObjectURL(blob);
+    const tAnchor = document.createElement('a');
+    tAnchor.href = tUrl;
+
+    var filename = "main.txt";
+    const userInput = window.prompt("Enter the filename: ", "main.cpp");
+    if (userInput !== null || userInput.trim !== "") {
+        filename = userInput;
+    }
+
+    tAnchor.download = filename;
+    tAnchor.click();
+    URL.revokeObjectURL(tUrl);
+}
+
+function onSavePressed() {
+    downloadAsFile(editor1.getValue());
+}
+
+function onSaveAsmPressed() {
+    downloadAsFile(editor2.getValue());
+}
+
+function terminalLoading() {
+    terminal.innerHTML = "<div class=\"lds-spinner\"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>";
+}
+
+function getSelectedIndex(element, value) {
+    for (let i = 0; i < element.options.length; i++) {
+        // console.log(element.options[i].value, value);
+        if (element.options[i].value === value) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+function stateChange(saveState) {
+    var lineWrap = document.getElementById("line_wrap");//.checked;
+    var editorFontSize = document.querySelector('#editor1');//.style.fontSize;
+    var terminalFontSize = document.getElementById("main_terminal");//.style.fontSize;
+    var editorTheme = document.getElementById("editor_theme");//.value
+    var editorLanguage = document.getElementById("current_language");//.value
+    var compiler = document.getElementById("current_compiler");//.value
+
+    const cookieName = "dcompiler_explorer_data";
+    if (saveState) {
+        console.log(editorTheme.value);
+        const data = {
+            line_wrap: lineWrap.checked,
+            editor_font_size: editorFontSize.style.fontSize,
+            terminal_font_size: terminalFontSize.style.fontSize,
+            editor_theme: editorTheme.value,
+            editor_language: editorLanguage.value,
+            used_compiler: compiler.value
+        };
+    
+        localStorage.setItem('sourceCode', editor1.getValue());
+        setCookie(cookieName, JSON.stringify(data), 365);
+    } else if ((data = getCookie(cookieName)) !== null) {
+        // console.log(data);
+        data = JSON.parse(data);
+        lineWrap.checked = data['line_wrap'] === 'true';
+        editorFontSize.style.fontSize = data['editor_font_size'];
+        terminalFontSize.style.fontSize = data['terminal_font_size'];
+        editorTheme.selectedIndex = getSelectedIndex(editorTheme, data['editor_theme']);
+        editorLanguage.selectedIndex = getSelectedIndex(editorLanguage, data['editor_language']);
+        compiler.selectedIndex = getSelectedIndex(compiler, data['used_compiler']);
+
+        editor1.setValue(localStorage.getItem('sourceCode'));
+        
+    }
+}
+
+function setCookie(name, value, expireDays) {
+    const date = new Date();
+    date.setTime(date.getTime() + (expireDays * 24 * 60 * 60 * 1000));
+    const expires = date.toUTCString();
+    document.cookie = `${name}=${value};expires=${expires}`;
+}
+
+function getCookie(name) {
+    const cookieString = document.cookie;
+    const cookies = cookieString.split('; ');
+
+    for (const cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue); // decode to remove special characters
+        }
+    }
+
+    return null;
+}
+
+stateChange(false);

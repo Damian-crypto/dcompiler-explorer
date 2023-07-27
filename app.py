@@ -8,15 +8,16 @@ compilerData = {
     'gnu_cpp':  ['g++', 'C:/Apps/mingw64/bin/g++.exe'],
     'clangpp':  ['clang++', 'C:/Apps/mingw64/bin/clang++.exe'],
     'gnu_c':    ['gcc', 'C:/Apps/mingw64/bin/gcc.exe'],
-    'java':     ['javac', 'C:/Apps/java/bin/javac.exe']
+    'java':     ['javac', 'C:/Apps/java/bin/javac.exe'],
+    'python':   ['python', 'C:/Users/damian/AppData/Local/Programs/Python/Python311/python.exe']
 }
 
 @app.route('/')
 def index():
     data = {
         'title': 'DCompiler Explorer',
-        'compilers': compilerData, 
-        'languages': ['c++', 'c', 'java']
+        'compilers': compilerData,
+        'languages': ['c++', 'c', 'java', 'python']
     }
     return render_template('index.html', data=data)
 
@@ -26,6 +27,12 @@ def compile():
     language = req_data['language']
     if language == 'c++':
         res = compilers.compileCPP(req_data, compilerData)
+        return res
+    elif language == 'java':
+        res = compilers.compileJAVA(req_data, compilerData)
+        return res
+    elif language == 'python':
+        res = compilers.compilePYTHON(req_data, compilerData)
         return res
     else:
         print('Trying to compile with invalid compiler!')

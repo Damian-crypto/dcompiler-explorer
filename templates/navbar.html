@@ -1,6 +1,14 @@
 <div class="navbar">
-    <ul class="menu">
-        <li class="menu-item title">{{ data['title'] }}</li>
-        <li class="menu-item">File</li>
-    </ul>
+    <div class="menu">
+        <div class="menu-item title">
+            {{ data['title'] }}
+        </div>
+        <div class="menu-item dropdown">
+            <span>File</span>
+            <div class="dropdown-content">
+                <a id="save" class="btn-menu" onclick="onSavePressed()">Save Source</a>
+                <a id="save_asm" class="btn-menu" onclick="onSaveAsmPressed()">Save Assembly</a>
+            </div>
+        </div>
+    </div>
 </div>

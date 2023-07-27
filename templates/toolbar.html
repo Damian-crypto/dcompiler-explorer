@@ -2,14 +2,14 @@
     <table>
         <tr>
             <th>Line Wrap</th>
-            <td><input id="lineWrap" type="checkbox" onclick="lineWrapChanged()"></td>
+            <td><input id="line_wrap" type="checkbox" onclick="lineWrapChanged()"></td>
             <th>Editor Font Size</th>
-            <td><input id="fontSize" type="number" onchange="fontSizeChanged()" value="16"></td>
+            <td><input id="font_size" type="number" onchange="fontSizeChanged()" value="16"></td>
             <th>Terminal Font Size</th>
-            <td><input id="termFontSize" type="number" onchange="termFontSizeChanged()" value="16"></td>
+            <td><input id="term_font_size" type="number" onchange="termFontSizeChanged()" value="16"></td>
             <th>Theme</th>
             <td>
-                <select id="editorTheme" onchange="themeChanged()">
+                <select id="editor_theme" onchange="themeChanged()">
                     <option value="gruvbox" selected>Gruvbox</option>
                     <option value="monokai">Monokai</option>
                     <option value="github_dark">GithubDark</option>
@@ -19,7 +19,7 @@
         <tr>
             <th>Language</th>
             <td>
-                <select id="currentLanguage" onchange="languageChanged()">
+                <select id="current_language" onchange="languageChanged()">
                     {% for key in data['languages'] %}
                         <option value="{{ key }}">{{ key }}</option>
                     {% endfor %}
@@ -27,11 +27,18 @@
             </td>
             <th>Compiler</th>
             <td>
-                <select id="currentCompiler" onchange="compilerChanged()">
+                <select id="current_compiler" onchange="compilerChanged()">
                     {% for key in data['compilers'] %}
                         <option value="{{ key }}">{{ data['compilers'][key][0] }}</option>
                     {% endfor %}
                 </select>
+            </td>
+            <th>Compiler Arguments</th>
+            <td>
+                <input id="compiler_arguments" type="text" placeholder="-std=c++23">
+            </td>
+            <td>
+                <button onclick="stateChange(false)">Reload State</button>
             </td>
         </tr>
     </table>
