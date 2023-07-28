@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, json
 import compilers
 
 app = Flask(__name__)
@@ -36,7 +36,11 @@ def compile():
         return res
     else:
         print('Trying to compile with invalid compiler!')
-    return '{}'
+    
+    res = {
+        'server_error': 'Compiler not supported!'
+    }
+    return json.dumps(res)
 
 if __name__ == '__main__':
     app.run(debug=True)

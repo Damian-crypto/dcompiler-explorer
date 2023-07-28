@@ -16,9 +16,15 @@ body {
     border: 2px solid black;
 }
 
-.container .container-slider {
+.container .container-slider-vertical {
     width: 30px;
     background-color: gray;
+}
+
+.container-slider-horizontal {
+    width: 100%;
+    background-color: gray;
+    height: 30px;
 }
 
 .navbar {

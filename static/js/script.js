@@ -1,43 +1,81 @@
-const sliderDiv = document.querySelector("#main_slider");
-const resizableDiv = document.querySelector("#editor1");
-let isResizing = false;
+const verticalSlider = document.querySelector("#vertical_slider");
+const resizableDiv1 = document.querySelector("#editor1");
+const resizableDiv2 = document.querySelector("#editor2");
+let verticallyResizing = false;
 let startX = 0;
 let startWidth = 0;
 let curWidth = 0;
 
-sliderDiv.addEventListener("mousedown", (e) => {
-    isResizing = true;
+verticalSlider.addEventListener("mousedown", (e) => {
+    verticallyResizing = true;
     startX = e.clientX;
-    curWidth = parseInt(window.getComputedStyle(resizableDiv).getPropertyValue("width"));
+    curWidth = parseInt(window.getComputedStyle(resizableDiv1).getPropertyValue("width"));
 });
 
 function mouseNotOnSlider(e) {
-    sliderDiv.style.backgroundColor = 'gray';
-    sliderDiv.style.cursor = 'auto';
+    verticalSlider.style.backgroundColor = 'gray';
+    verticalSlider.style.cursor = 'auto';
 }
 
 function mouseOnSlider(e) {
-    sliderDiv.style.backgroundColor = 'red';
-    sliderDiv.style.cursor = 'col-resize';
+    verticalSlider.style.backgroundColor = 'red';
+    verticalSlider.style.cursor = 'col-resize';
 }
 
-sliderDiv.addEventListener("mousemove", mouseOnSlider);
+verticalSlider.addEventListener("mousemove", mouseOnSlider);
 
-sliderDiv.addEventListener("mouseleave", (e) => {
+verticalSlider.addEventListener("mouseleave", (e) => {
     mouseNotOnSlider(e);
 });
 
+const horizontalSlider = document.querySelector("#horizontal_slider");
+let horizontallyResizing = false;
+let startY = 0;
+let startHeight = 0;
+let curHeight = 0;
+
+horizontalSlider.addEventListener("mousedown", (e) => {
+    horizontallyResizing = true;
+    startY = e.clientY;
+    curHeight = parseInt(window.getComputedStyle(resizableDiv1).getPropertyValue("height"));
+});
+
+function mouseNotOnSlider2(e) {
+    horizontalSlider.style.backgroundColor = 'gray';
+    horizontalSlider.style.cursor = 'auto';
+}
+
+function mouseOnSlider2(e) {
+    horizontalSlider.style.backgroundColor = 'red';
+    horizontalSlider.style.cursor = 'row-resize';
+}
+
+horizontalSlider.addEventListener("mousemove", mouseOnSlider2);
+
+horizontalSlider.addEventListener("mouseleave", (e) => {
+    mouseNotOnSlider2(e);
+});
+
 document.addEventListener("mousemove", (e) => {
-    if (isResizing) {
+    if (verticallyResizing) {
         const width = curWidth + (e.clientX - startX);
-        resizableDiv.style.width = `${width}px`;
+        resizableDiv1.style.width = `${width}px`;
+        editor1.resize();
+        editor2.resize();
+    }
+
+    if (horizontallyResizing) {
+        const height = curHeight + (e.clientY - startY);
+        resizableDiv1.style.height = `${height}px`;
+        resizableDiv2.style.height = `${height}px`;
         editor1.resize();
         editor2.resize();
     }
 });
 
 document.addEventListener("mouseup", () => {
-    isResizing = false;
+    verticallyResizing = false;
+    horizontallyResizing = false;
 });
 
 async function compileCode(compilerOptions) {
@@ -145,7 +183,7 @@ function lineWrapChanged() {
 }
 
 function fontSizeChanged() {
-    var elem = document.getElementById("font_size");
+    var elem = document.getElementById("editor_font_size");
     document.querySelector('#editor1').style.fontSize = `${elem.value}px`;
     document.querySelector('#editor2').style.fontSize = `${elem.value}px`;
 }
@@ -165,10 +203,12 @@ function compilerChanged() {
     sendCompileRequest();
 }
 
-function languageChanged() {
+function languageChanged(compile = true) {
     var lang = document.getElementById("current_language");
     editor1.session.setMode(`ace/mode/${getAceLanguage(lang.value)}`);
-    sendCompileRequest();
+    if (compile) {
+        sendCompileRequest();
+    }
 }
 
 function getAceLanguage(lang) {
@@ -215,7 +255,6 @@ function terminalLoading() {
 
 function getSelectedIndex(element, value) {
     for (let i = 0; i < element.options.length; i++) {
-        // console.log(element.options[i].value, value);
         if (element.options[i].value === value) {
             return i;
         }
@@ -226,19 +265,18 @@ function getSelectedIndex(element, value) {
 
 function stateChange(saveState) {
     var lineWrap = document.getElementById("line_wrap");//.checked;
-    var editorFontSize = document.querySelector('#editor1');//.style.fontSize;
-    var terminalFontSize = document.getElementById("main_terminal");//.style.fontSize;
+    var editorFontSize = document.getElementById("editor_font_size");
+    var terminalFontSize = document.getElementById("term_font_size");
     var editorTheme = document.getElementById("editor_theme");//.value
     var editorLanguage = document.getElementById("current_language");//.value
     var compiler = document.getElementById("current_compiler");//.value
 
     const cookieName = "dcompiler_explorer_data";
     if (saveState) {
-        console.log(editorTheme.value);
         const data = {
             line_wrap: lineWrap.checked,
-            editor_font_size: editorFontSize.style.fontSize,
-            terminal_font_size: terminalFontSize.style.fontSize,
+            editor_font_size: editorFontSize.value,
+            terminal_font_size: terminalFontSize.value,
             editor_theme: editorTheme.value,
             editor_language: editorLanguage.value,
             used_compiler: compiler.value
@@ -247,17 +285,20 @@ function stateChange(saveState) {
         localStorage.setItem('sourceCode', editor1.getValue());
         setCookie(cookieName, JSON.stringify(data), 365);
     } else if ((data = getCookie(cookieName)) !== null) {
-        // console.log(data);
         data = JSON.parse(data);
-        lineWrap.checked = data['line_wrap'] === 'true';
-        editorFontSize.style.fontSize = data['editor_font_size'];
-        terminalFontSize.style.fontSize = data['terminal_font_size'];
+        lineWrap.checked = data['line_wrap'] === true;
+        editorFontSize.value = data['editor_font_size'];
+        terminalFontSize.value = data['terminal_font_size'];
         editorTheme.selectedIndex = getSelectedIndex(editorTheme, data['editor_theme']);
         editorLanguage.selectedIndex = getSelectedIndex(editorLanguage, data['editor_language']);
         compiler.selectedIndex = getSelectedIndex(compiler, data['used_compiler']);
-
-        editor1.setValue(localStorage.getItem('sourceCode'));
         
+        editor1.setValue(localStorage.getItem('sourceCode'));
+        themeChanged();
+        termFontSizeChanged();
+        languageChanged(false);
+        fontSizeChanged();
+        lineWrapChanged();
     }
 }
 
